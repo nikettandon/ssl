@@ -6,12 +6,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
+
 import util.FileLines;
 
 public class vertexinfo {
 	private static ArrayList<String>[] vertdetails;// cluster and vertex
 
-	private static ArrayList<String>[] adj = (ArrayList<String>[]) new ArrayList[1299];
+	private static ArrayList<String>[] adj = (ArrayList<String>[]) new ArrayList[41335];
 
 	public static void initadj(ArrayList<String> unique, String path)
 			throws IOException {
@@ -19,7 +21,7 @@ public class vertexinfo {
 		String strneig = "";
 		String line3 = "";
 		BufferedReader brneighb = new BufferedReader(new FileReader(path
-				+ "/data/bigFileChuncks5k.mat"));
+				+ "/data/bigFileChuncks.mat"));
 		strneig = brneighb.readLine();
 		// TODO 3. use FileLines
 		for (int i = 0; i < unique.size(); i++) {
@@ -33,6 +35,7 @@ public class vertexinfo {
 				adj[i].add(t[j]);
 				j++;
 			}
+			//System.out.println(adj[i]);
 		}
 	}
 
@@ -43,7 +46,7 @@ public class vertexinfo {
 
 		boolean flag2 = true;
 
-		for (String strread : new FileLines(path + "/data/solution1.sol")) {
+		for (String strread : new FileLines(path + "/data/bigsolution.sol")) {
 			if (strread.length() == 0)
 				flag2 = false;
 			else
@@ -63,6 +66,7 @@ public class vertexinfo {
 
 			vertdetails[i].add(vertex);
 			vertdetails[i].add(clust);
+			//System.out.println(vertdetails[i]);
 
 		}
 	}
@@ -83,7 +87,7 @@ public class vertexinfo {
 
 		for (String w : adj(v)) {
 
-			if (Integer.parseInt(vertdetails[Integer.parseInt(w) - 1].get(1)) == clustnum) {
+			if ((Integer.parseInt(vertdetails[Integer.parseInt(w) - 1].get(1)) == clustnum) && (Integer.parseInt(vertdetails[Integer.parseInt(w) - 1].get(1))!=-1)) {
 
 				intra_deg++;
 			}
@@ -98,7 +102,8 @@ public class vertexinfo {
 
 		for (String w : adj(v)) {
 
-			if (Integer.parseInt(vertdetails[Integer.parseInt(w) - 1].get(1)) != clustnum) {
+			if ((Integer.parseInt(vertdetails[Integer.parseInt(w) - 1].get(1)) != clustnum) && (Integer.parseInt(vertdetails[Integer.parseInt(w) - 1].get(1))!=-1)) {
+
 
 				arclust.add(vertdetails[Integer.parseInt(w) - 1].get(1));
 			}

@@ -36,8 +36,8 @@ import util.Util;
  * @author shilpa212
  */
 public class SeedSelector {
-	private static int m = 1299;
-	private static int n = 10046;
+	private static int m = 41335;
+	private static int n = 347072;
 	private static String path = "";
 	private static ArrayList<String> unique;
 
@@ -57,26 +57,25 @@ public class SeedSelector {
 
 		ArrayList<String> archunks = new ArrayList<String>();
 		for (List<String> chunk : new FileChunks(path
-				+ "/data/biguniq5krev.txt", true, ",")) {
+				+ "/data/bigoutputsorted.txt", true, ",")) {
 			for (String s : chunk)
 				archunks.add(s);
 			archunks.add("====================");
 
 		}
-		util.Util.writeFile(path + "/data/bigFileChuncks5k.txt", archunks,
-				false);
+		util.Util.writeFile(path + "/data/bigFileChuncks.txt", archunks, false);
 
 	}
 
 	public static void clutoinput() throws IOException {
 		unique = new ArrayList<String>();
-		for (String uniqstr : new FileLines(path + "/data/biguniquwwords5k.txt")) {
+		for (String uniqstr : new FileLines(path + "/data/biguniquewords.txt")) {
 			unique.add(uniqstr);
 		}
 
-		util.Util.writeFile(path + "/data/bigFileChunckscol5k.mat.clabel",
+		util.Util.writeFile(path + "/data/bigFileChunckscol.mat.clabel",
 				unique, false);
-		util.Util.writeFile(path + "/data/bigFileChuncksrow5k.mat.rlabel",
+		util.Util.writeFile(path + "/data/bigFileChuncksrow.mat.rlabel",
 				unique, false);
 
 		ArrayList<String> ar = new ArrayList<String>();
@@ -85,7 +84,7 @@ public class SeedSelector {
 		String rowlabel = "";
 		try {
 
-			File file = new File(path + "/data/bigFileChuncks5k.mat");
+			File file = new File(path + "/data/bigFileChuncks.mat");
 
 			if (!file.exists()) {
 				file.createNewFile();
@@ -103,7 +102,7 @@ public class SeedSelector {
 			bufferedWriter.write(String.valueOf(n));
 			bufferedWriter.write("\n");
 
-			for (String str : new FileLines(path + "/data/bigFileChuncks5k.txt")) {
+			for (String str : new FileLines(path + "/data/bigFileChuncks.txt")) {
 				if (!str.equals("====================")) {
 					String[] token = str.split(",");
 					rowlabel = token[0];
@@ -149,7 +148,8 @@ public class SeedSelector {
 			break;
 
 		case "genTopK":
-			unique = Util.readFileAsList("data/biguniquwwords5k.txt");
+			unique = Util.readFileAsList(path + "/data/biguniquewords.txt");
+			System.out.println(unique);
 			vobj.initadj(unique, path);
 			vobj.initvertclust(unique, path);
 			st.topK(vobj, outFolder);
@@ -167,11 +167,13 @@ public class SeedSelector {
 		AutoMap<String, Double> mNoise = new AutoMap<>();
 		for (int i = 0; i < unique.size(); i++) {
 			String vertex = unique.get(i);
+
 			String sc[] = score(vobj.distinterdegreeofvertex(i),
 					vobj.intradegreeofvertex(i)).split("_");
 
 			mSeeds.put(vertex, Double.parseDouble(sc[1]));
-			mNoise.put(vertex, Double.parseDouble(sc[0]));
+			if (!vertex.contains("#")) // TODO words are connected to senses.
+				mNoise.put(vertex, Double.parseDouble(sc[0]));
 
 		}
 		printtopK(mSeeds, mNoise, outFolder);
