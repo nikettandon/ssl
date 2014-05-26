@@ -36,8 +36,8 @@ import util.Util;
  * @author shilpa212
  */
 public class SeedSelector {
-	private static int m = 41335;
-	private static int n = 347072;
+	private static int m = 13919;
+	private static int n = 185002;
 	private static String path = "";
 	private static ArrayList<String> unique;
 
@@ -57,25 +57,25 @@ public class SeedSelector {
 
 		ArrayList<String> archunks = new ArrayList<String>();
 		for (List<String> chunk : new FileChunks(path
-				+ "/data/bigoutputsorted.txt", true, ",")) {
+				+ "/data/eval-data/sensitivity/sortedinput.txt", true, "\t")) {
 			for (String s : chunk)
 				archunks.add(s);
 			archunks.add("====================");
 
 		}
-		util.Util.writeFile(path + "/data/bigFileChuncks.txt", archunks, false);
+		util.Util.writeFile(path + "/data/eval-data/sensitivity/bigFileChuncks.txt", archunks, false);
 
 	}
 
 	public static void clutoinput() throws IOException {
 		unique = new ArrayList<String>();
-		for (String uniqstr : new FileLines(path + "/data/biguniquewords.txt")) {
+		for (String uniqstr : new FileLines(path + "/data/eval-data/sensitivity/uniqueword.txt")) {
 			unique.add(uniqstr);
 		}
 
-		util.Util.writeFile(path + "/data/bigFileChunckscol.mat.clabel",
+		util.Util.writeFile(path + "/data/eval-data/sensitivity/bigFileChunckscol.mat.clabel",
 				unique, false);
-		util.Util.writeFile(path + "/data/bigFileChuncksrow.mat.rlabel",
+		util.Util.writeFile(path + "/data/eval-data/sensitivity/bigFileChuncksrow.mat.rlabel",
 				unique, false);
 
 		ArrayList<String> ar = new ArrayList<String>();
@@ -84,7 +84,7 @@ public class SeedSelector {
 		String rowlabel = "";
 		try {
 
-			File file = new File(path + "/data/bigFileChuncks.mat");
+			File file = new File(path + "/data/eval-data/sensitivity/bigFileChuncks.mat");
 
 			if (!file.exists()) {
 				file.createNewFile();
@@ -102,9 +102,9 @@ public class SeedSelector {
 			bufferedWriter.write(String.valueOf(n));
 			bufferedWriter.write("\n");
 
-			for (String str : new FileLines(path + "/data/bigFileChuncks.txt")) {
+			for (String str : new FileLines(path + "/data/eval-data/sensitivity/bigFileChuncks.txt")) {
 				if (!str.equals("====================")) {
-					String[] token = str.split(",");
+					String[] token = str.split("\t");
 					rowlabel = token[0];
 					bufferedWriter.write(" ");
 					int j = unique.indexOf(token[1]);
@@ -139,7 +139,7 @@ public class SeedSelector {
 		path = args[1];
 		SeedSelector st = new SeedSelector();
 		vertexinfo vobj = new vertexinfo();
-		String outFolder = path + "/data/"; // args[1]
+		String outFolder = path + "/data/eval-data/sensitivity/"; // args[1]
 
 		switch (command) {
 		case "genClutoInput":
@@ -148,9 +148,10 @@ public class SeedSelector {
 			break;
 
 		case "genTopK":
-			unique = Util.readFileAsList(path + "/data/biguniquewords.txt");
-			System.out.println(unique);
+			unique = Util.readFileAsList(path + "/data/eval-data/sensitivity/uniqueword.txt");
+			//System.out.println(unique);
 			vobj.initadj(unique, path);
+			//vobj.initspectralmat(unique, path);
 			vobj.initvertclust(unique, path);
 			st.topK(vobj, outFolder);
 			break;
@@ -196,7 +197,7 @@ public class SeedSelector {
 		}
 		if (!outFolder.endsWith(File.pathSeparator))
 			outFolder += outFolder + File.pathSeparator;
-		Util.writeFile(outFolder + "topkseeds", topkSeedList, false);
+		Util.writeFile(outFolder + "topkseeds.txt", topkSeedList, false);
 
 		List<String> topkNoiseList = new ArrayList<>();
 		System.out.println("Top " + topKNoise + " noise seeds... ");
@@ -208,7 +209,7 @@ public class SeedSelector {
 			System.out.println(topKNoise + ". " + e.getKey());
 		}
 
-		Util.writeFile(outFolder + "topknoise", topkNoiseList, false);
+		Util.writeFile(outFolder + "topknoise.txt", topkNoiseList, false);
 	}
 
 }
