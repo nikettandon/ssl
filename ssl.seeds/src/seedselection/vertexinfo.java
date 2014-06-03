@@ -26,7 +26,7 @@ public class vertexinfo {
 		String strneig = "";
 		String line3 = "";
 		BufferedReader brneighb = new BufferedReader(new FileReader(path
-				+ "data/eval-data/sensitivity/bigFileChuncks.mat"));
+				+ "/data/eval-data/sensitivity/bigFileChuncks.mat"));
 		strneig = brneighb.readLine();
 		// TODO 3. use FileLines
 		for (int i = 0; i < unique.size(); i++) {

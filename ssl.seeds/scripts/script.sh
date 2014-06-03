@@ -9,8 +9,7 @@ cat /home/shilpa/git/ssl/ssl.seeds/data/eval-data/sensitivity/sortedinput.txt | 
 
 java -jar /home/shilpa/git/ssl/ssl.seeds/runnable-jar/SeedSelection.jar genClutoInput /home/shilpa/git/ssl/ssl.seeds/ 
 
-./cluto-2.1.2/Linux-x86_64/vcluster -clmethod=graph -mincomponent=3 -sim=dist -rowmodel=none -colmodel=none -clabelfile=/home/shilpa/git/ssl/ssl.seeds/data/bigFileChunckscol.mat.clabel -rlabelfile=/home/shilpa/git/ssl/ssl.seeds/data/bigFileChuncksrow.mat.rlabel -clustfile /home/shilpa/git/ssl/ssl.seeds/data/eval-data/sensitivity/bigsolution.sol /home/shilpa/git/ssl/ssl.seeds/data/eval-data/sensitivity/bigFileChuncks.mat 500
-
+./cluto-2.1.2/Linux-x86_64/vcluster -clmethod=graph -nnbrs=100 -rowmodel=none -colmodel=none -clabelfile=/home/shilpa/git/ssl/ssl.seeds/data/eval-data/sensitivity/bigFileChunckscol.mat.clabel -rlabelfile=/home/shilpa/git/ssl/ssl.seeds/data/eval-data/senstivity/bigFileChuncksrow.mat.rlabel -clustfile /home/shilpa/git/ssl/ssl.seeds/data/eval-data/sensitivity/bigsolution.sol /home/shilpa/git/ssl/ssl.seeds/data/eval-data/sensitivity/bigFileChuncks.mat 100
 
 java -jar /home/shilpa/git/ssl/ssl.seeds/runnable-jar/SeedSelection.jar genTopK /home/shilpa/git/ssl/ssl.seeds/ 
 

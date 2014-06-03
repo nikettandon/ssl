@@ -63,19 +63,24 @@ public class SeedSelector {
 			archunks.add("====================");
 
 		}
-		util.Util.writeFile(path + "/data/eval-data/sensitivity/bigFileChuncks.txt", archunks, false);
+		util.Util.writeFile(path
+				+ "/data/eval-data/sensitivity/bigFileChuncks.txt", archunks,
+				false);
 
 	}
 
 	public static void clutoinput() throws IOException {
 		unique = new ArrayList<String>();
-		for (String uniqstr : new FileLines(path + "/data/eval-data/sensitivity/uniqueword.txt")) {
+		for (String uniqstr : new FileLines(path
+				+ "/data/eval-data/sensitivity/uniqueword.txt")) {
 			unique.add(uniqstr);
 		}
 
-		util.Util.writeFile(path + "/data/eval-data/sensitivity/bigFileChunckscol.mat.clabel",
+		util.Util.writeFile(path
+				+ "/data/eval-data/sensitivity/bigFileChunckscol.mat.clabel",
 				unique, false);
-		util.Util.writeFile(path + "/data/eval-data/sensitivity/bigFileChuncksrow.mat.rlabel",
+		util.Util.writeFile(path
+				+ "/data/eval-data/sensitivity/bigFileChuncksrow.mat.rlabel",
 				unique, false);
 
 		ArrayList<String> ar = new ArrayList<String>();
@@ -84,7 +89,8 @@ public class SeedSelector {
 		String rowlabel = "";
 		try {
 
-			File file = new File(path + "/data/eval-data/sensitivity/bigFileChuncks.mat");
+			File file = new File(path
+					+ "/data/eval-data/sensitivity/bigFileChuncks.mat");
 
 			if (!file.exists()) {
 				file.createNewFile();
@@ -102,7 +108,8 @@ public class SeedSelector {
 			bufferedWriter.write(String.valueOf(n));
 			bufferedWriter.write("\n");
 
-			for (String str : new FileLines(path + "/data/eval-data/sensitivity/bigFileChuncks.txt")) {
+			for (String str : new FileLines(path
+					+ "/data/eval-data/sensitivity/bigFileChuncks.txt")) {
 				if (!str.equals("====================")) {
 					String[] token = str.split("\t");
 					rowlabel = token[0];
@@ -113,7 +120,7 @@ public class SeedSelector {
 					bufferedWriter.write(" ");
 					double val = Double.parseDouble(token[2]);
 
-					bufferedWriter.write(String.valueOf(1.0 - val));
+					bufferedWriter.write(String.valueOf(val));
 				} else {
 					bufferedWriter.write("\n");
 					continue;
@@ -135,6 +142,7 @@ public class SeedSelector {
 	}
 
 	public static void main(String[] args) throws IOException {
+		// Evaluator eval= new Evaluator();
 		String command = args[0];
 		path = args[1];
 		SeedSelector st = new SeedSelector();
@@ -148,10 +156,11 @@ public class SeedSelector {
 			break;
 
 		case "genTopK":
-			unique = Util.readFileAsList(path + "/data/eval-data/sensitivity/uniqueword.txt");
-			//System.out.println(unique);
+			unique = Util.readFileAsList(path
+					+ "/data/eval-data/sensitivity/uniqueword.txt");
+			// System.out.println(unique);
 			vobj.initadj(unique, path);
-			//vobj.initspectralmat(unique, path);
+			// vobj.initspectralmat(unique, path);
 			vobj.initvertclust(unique, path);
 			st.topK(vobj, outFolder);
 			break;
@@ -173,7 +182,8 @@ public class SeedSelector {
 					vobj.intradegreeofvertex(i)).split("_");
 
 			mSeeds.put(vertex, Double.parseDouble(sc[1]));
-			if (!vertex.contains("#")) // TODO words are connected to senses.
+			//mNoise.put(vertex, Double.parseDouble(sc[0]));
+			if (vertex.contains("#")) // TODO words are connected to senses.
 				mNoise.put(vertex, Double.parseDouble(sc[0]));
 
 		}
@@ -183,20 +193,25 @@ public class SeedSelector {
 
 	private void printtopK(AutoMap<String, Double> mSeeds,
 			AutoMap<String, Double> mNoise, String outFolder) {
-		int topKSeeds = 100;
-		int topKNoise = 100;
+		int topKSeeds = 10;
+		int topKNoise = 10;
+		outFolder = "/home/shilpa/git/ssl/ssl.seeds/data/eval-data/sensitivity/";
+		// TODO remove hardcoded outFolder.
 
 		System.out.println("Top " + topKSeeds + " seeds... ");
 		TreeMap<String, Double> sortedMSeeds = mSeeds.sortByValue();
 		List<String> topkSeedList = new ArrayList<>();
+
 		for (Entry<String, Double> e : sortedMSeeds.entrySet()) {
 			if (topKSeeds-- < 0)
 				break;
 			topkSeedList.add(e.getKey());
 			System.out.println(topKSeeds + ". " + e.getKey());
 		}
-		if (!outFolder.endsWith(File.pathSeparator))
-			outFolder += outFolder + File.pathSeparator;
+
+		if (!outFolder.endsWith(File.separator))
+			outFolder += File.separator;
+
 		Util.writeFile(outFolder + "topkseeds.txt", topkSeedList, false);
 
 		List<String> topkNoiseList = new ArrayList<>();
@@ -209,6 +224,14 @@ public class SeedSelector {
 			System.out.println(topKNoise + ". " + e.getKey());
 		}
 
+		try {
+			System.out.println("\n\n\n\n\n\nTopKSeed evaluation: "
+					+ Evaluator.evalAutoSeeds(topkSeedList, outFolder));
+			System.out.println("TopKNoise evaluation: "
+					+ Evaluator.evalNoiseSeeds(topkSeedList, outFolder));
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 		Util.writeFile(outFolder + "topknoise.txt", topkNoiseList, false);
 	}
 
