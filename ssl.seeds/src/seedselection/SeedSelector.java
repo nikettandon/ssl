@@ -7,8 +7,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import util.AutoMap;
@@ -43,8 +50,8 @@ public class SeedSelector {
 
 	public String score(double distiner, double intra) {
 		double pd2, pd3;
-		pd2 = sigmoid(distiner);
-		pd3 = sigmoid(intra / (1 + distiner));
+		pd2 = distiner;
+		pd3 = intra / (1 + distiner);
 
 		return pd2 + "_" + pd3;
 	}
@@ -173,6 +180,72 @@ public class SeedSelector {
 
 	public void topK(vertexinfo vobj, String outFolder) {
 
+		
+		HashMap<String,ArrayList<String>> mClust=new HashMap<>();
+		int points_in_clust=0;
+		// String sc[] = score(vobj.distinterdegreeofvertex(j),		vobj.intradegreeofvertex(j)).split("_");
+		//String str1="";
+		//private static ArrayList<String>[] clustpoints = (ArrayList<String>[]) new ArrayList[30];
+		for (String str : new FileLines("/home/shilpa/git/ssl/ssl.seeds/data/eval-data/sensitivity/bigsolution.sol")) 
+		{
+			
+			if(!mClust.containsKey(str))
+			{
+				ArrayList<String> ar= new ArrayList<>();
+				String sc= score(vobj.distinterdegreeofvertex(points_in_clust),		vobj.intradegreeofvertex(points_in_clust));
+				ar.add(String.valueOf(points_in_clust) + "_" + sc);
+				mClust.put(str, ar);
+			}
+			else{
+				ArrayList<String> ar1 = mClust.get(str);
+				String sc= score(vobj.distinterdegreeofvertex(points_in_clust),		vobj.intradegreeofvertex(points_in_clust));
+				ar1.add(String.valueOf(points_in_clust) + "_" + sc);
+
+				mClust.put(str, ar1);
+			}
+			
+			points_in_clust++;
+		}
+		
+		Set<Entry<String, ArrayList<String>>> e=mClust.entrySet();
+	Iterator<Entry<String, ArrayList<String>>> i=e.iterator();
+	while(i.hasNext())
+	{
+		Map.Entry me = (Map.Entry)i.next();
+		System.out.println("-------"+ me.getKey() + me.getValue());
+		AutoMap<String, Double> mSeeds = new AutoMap<>();
+		AutoMap<String, Double> mNoise = new AutoMap<>();
+		for(int k=0;k<mClust.get(me.getKey()).size();k++)
+		{
+			ArrayList<String> ac=mClust.get(me.getKey());
+			String ac1[]=ac.get(k).split("_");
+			mSeeds.put(unique.get(Integer.parseInt(ac1[0])),Double.parseDouble(ac1[2]));
+			//if (!unique.get(Integer.parseInt(ac1[0])).contains("#")) // TODO words are connected to senses.
+				mNoise.put(unique.get(Integer.parseInt(ac1[0])), Double.parseDouble(ac1[1]));
+		}
+		printtopK(mSeeds, mNoise, outFolder);
+		
+	}
+	ArrayList<String> topkSeedList= new ArrayList<>();
+	ArrayList<String> topkNoiseList= new ArrayList<>();
+	for (String str : new FileLines("/home/shilpa/git/ssl/ssl.seeds/data/eval-data/sensitivity/topkseeds.txt"))
+		topkSeedList.add(str);
+	for (String str1 : new FileLines("/home/shilpa/git/ssl/ssl.seeds/data/eval-data/sensitivity/topknoise.txt"))
+		topkNoiseList.add(str1);
+	
+	
+	try {
+		System.out.println("\n\n\n\n\n\nTopKSeed evaluation: "
+				+ Evaluator.evalAutoSeeds(topkSeedList, outFolder));
+		System.out.println("TopKNoise evaluation: "
+				+ Evaluator.evalNoiseSeeds(topkNoiseList, outFolder));
+	} catch (Exception e1) {
+		e1.printStackTrace();
+	}
+	
+	}
+	/*public void topK(vertexinfo vobj, String outFolder) {
+
 		AutoMap<String, Double> mSeeds = new AutoMap<>();
 		AutoMap<String, Double> mNoise = new AutoMap<>();
 		for (int i = 0; i < unique.size(); i++) {
@@ -189,7 +262,7 @@ public class SeedSelector {
 		}
 		printtopK(mSeeds, mNoise, outFolder);
 
-	}
+	}*/
 
 	private void printtopK(AutoMap<String, Double> mSeeds,
 			AutoMap<String, Double> mNoise, String outFolder) {
@@ -200,6 +273,9 @@ public class SeedSelector {
 
 		System.out.println("Top " + topKSeeds + " seeds... ");
 		TreeMap<String, Double> sortedMSeeds = mSeeds.sortByValue();
+		//Map<String, Integer> newMap = new TreeMap(Collections.reverseOrder());
+		//newMap.putAll(myMap);
+		//Collections.reverse(sortedMSeeds);
 		List<String> topkSeedList = new ArrayList<>();
 
 		for (Entry<String, Double> e : sortedMSeeds.entrySet()) {
@@ -212,7 +288,7 @@ public class SeedSelector {
 		if (!outFolder.endsWith(File.separator))
 			outFolder += File.separator;
 
-		Util.writeFile(outFolder + "topkseeds.txt", topkSeedList, false);
+		Util.writeFile(outFolder + "topkseeds.txt", topkSeedList, true);
 
 		List<String> topkNoiseList = new ArrayList<>();
 		System.out.println("Top " + topKNoise + " noise seeds... ");
@@ -223,16 +299,10 @@ public class SeedSelector {
 			topkNoiseList.add(e.getKey());
 			System.out.println(topKNoise + ". " + e.getKey());
 		}
+		
 
-		try {
-			System.out.println("\n\n\n\n\n\nTopKSeed evaluation: "
-					+ Evaluator.evalAutoSeeds(topkSeedList, outFolder));
-			System.out.println("TopKNoise evaluation: "
-					+ Evaluator.evalNoiseSeeds(topkSeedList, outFolder));
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-		Util.writeFile(outFolder + "topknoise.txt", topkNoiseList, false);
+		
+		Util.writeFile(outFolder + "topknoise.txt", topkNoiseList, true);
 	}
 
 }

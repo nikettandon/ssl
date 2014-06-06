@@ -115,7 +115,10 @@ public void put(String kv,String separator,int keyPosition){
 public TreeMap<K, V> sortByValue(){
   ValueComparator<K, V> sortByNumericVal = new ValueComparator<K, V>(this);
   TreeMap<K, V> sortedMap = new TreeMap<K, V>(sortByNumericVal);
+  
   sortedMap.putAll(this);
+  //Map<String, Integer> newMap = new TreeMap(Collections.reverseOrder());
+ // newMap.putAll(myMap);
   return sortedMap;
 }
 
